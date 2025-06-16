@@ -1,0 +1,37 @@
+version: "3.0"
+services:
+    application:
+        container_name: eatzy-application
+        image: node:lts-alpine
+        ports:
+            - "3000:3000"
+        user: ${MY_USER}
+        volumes:
+            - ./code:/home/node/code
+        working_dir: /home/node/code/eatzy-application
+        depends_on:
+            - backend
+        environment:
+            - HOST=0.0.0.0
+            - CHOKIDAR_USEPOLLING=true
+            - CHOKIDAR_INTERVAL=100
+        command: "npm run dev"
+        tty: true
+    backend:
+        container_name: eatzy-backend
+        image: mongo:latest
+        restart: always
+        environment:
+            DB_NAME: eatzy
+            MONGO_INITDB_DATABASE: eatzy
+        ports:
+            - 27017:27017
+        volumes:
+            - "./.docker/eatzy-backend/seed-mongodb.js:/docker-entrypoint-initdb.d/seed-mongodb.js"
+            - mongodb_data_container:/data/db
+volumes:
+    mongodb_data_container:
+    
+    
+
+
