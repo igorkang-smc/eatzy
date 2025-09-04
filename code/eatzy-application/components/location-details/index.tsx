@@ -24,7 +24,7 @@ const LocationDetail = (props: PropsInterface): JSX.Element => {
     useEffect(() => {
         let userId = session?.user.fdlst_private_userId;
         setOnWishlist(
-            userId && location.on_wishlist.includes(userId) ? true : false
+            !!(userId && location.on_wishlist.includes(userId))
         );
     }, [session]);
 

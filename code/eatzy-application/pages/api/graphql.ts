@@ -12,6 +12,7 @@ const server = new ApolloServer({
     typeDefs,
 });
 
+// @ts-ignore
 const handler = startServerAndCreateNextHandler(server, {
     context: async (req: NextApiRequest) => {
         const token = await getToken({ req });
