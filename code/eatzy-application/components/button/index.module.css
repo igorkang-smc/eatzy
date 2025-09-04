@@ -5,7 +5,7 @@
     cursor: pointer;
     display: inline-flex;
     font-weight: 500;
-    height: 35px;
+    height: 38px;
     letter-spacing: 0;
     margin: 0;
     overflow: hidden;
@@ -22,7 +22,7 @@
 
 .root {
     transition: border-color 0.25s ease-in, background-color 0.25s ease-in,
-    color 0.25s ease-in;
+        color 0.25s ease-in;
     will-change: border-color, background-color, color;
 }
 

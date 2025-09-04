@@ -8,8 +8,8 @@
 
 import Locations from "mongoose/locations/model";
 import {
-    FilterLocationType,
     FilterWishlistType,
+    FilterLocationType,
 } from "mongoose/locations/custom";
 import { LocationType } from "mongoose/locations/schema";
 
@@ -17,45 +17,53 @@ import { LocationType } from "mongoose/locations/schema";
  * actual filter function
  */
 async function findLocations(
-    filter: FilterLocationType | FilterWishlistType | {}
-): Promise<LocationType[] | []> {
+    filter: {} | FilterLocationType | FilterWishlistType
+) {
     try {
-        let result: Array<LocationType | undefined> = await Locations.find(
-            filter
-        );
-        return result as LocationType[];
+        let result: Array<LocationType | null> = await Locations.find(filter);
+        return result as unknown as LocationType;
     } catch (err) {
         console.log(err);
     }
-    return [];
+    return {};
 }
 
 /**
- * API / facade to Find all "location"-documents from"locations"-collection via the "locations"-model
+ *    * API / facade Find all "location"-documents from the "locations"-collection via the "locations"-model
  */
-export async function findLocationsById(
-    location_ids: string[]
-): Promise<LocationType[] | []> {
-    let filter = { location_id: location_ids };
-    return await findLocations(filter);
-}
-
-/**
- *  * API / facade Find all "location"-documents from"locations"-collection via the "locations"-model
- */
-export async function findAllLocations(): Promise<LocationType[] | []> {
+export async function findAllLocations() {
     let filter = {};
-    return await findLocations(filter);
+    return (await findLocations(filter)) as unknown as LocationType;
 }
 
 /**
- *  * API / facade udate the wishlist array, either add or remove items
+ * API / facade to Find a single "location"-document from the "locations"-collection via the "locations"-model
+ */
+export async function findLocationsById(location_ids: string[]) {
+    let filter: FilterLocationType = { location_id: location_ids };
+    return (await findLocations(filter)) as unknown as LocationType;
+}
+
+/**
+ *    * API / facade get all locations whose on_wishlist array contains the given userId
+ */
+export async function onUserWishlist(user_id: string) {
+    let filter: FilterWishlistType = {
+        on_wishlist: {
+            $in: [user_id],
+        },
+    };
+    return (await findLocations(filter)) as unknown as LocationType;
+}
+
+/**
+ *    * API / facade udate the wishlist array, either add or remove items
  */
 export async function updateWishlist(
     location_id: string,
     user_id: string,
     action: string
-): Promise<LocationType | null | {}> {
+) {
     let filter = { location_id: location_id };
     let options = { upsert: true, returnDocument: "after" };
     let update = {};
@@ -68,6 +76,7 @@ export async function updateWishlist(
             update = { $pull: { on_wishlist: user_id } };
             break;
     }
+
     try {
         let result: LocationType | null = await Locations.findOneAndUpdate(
             filter,
@@ -79,18 +88,4 @@ export async function updateWishlist(
         console.log(err);
     }
     return {};
-}
-
-/**
- *  * API / facade get all locations whose on_wishlist array contains the given userId
- */
-export async function onUserWishlist(
-    user_id: string
-): Promise<LocationType[] | []> {
-    let filter: FilterWishlistType = {
-        on_wishlist: {
-            $in: [user_id],
-        },
-    };
-    return await findLocations(filter);
 }
